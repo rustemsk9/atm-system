@@ -22,6 +22,7 @@ void mainMenu(struct User u)
         createNewAcc(u);
         break;
     case 2:
+        updateAccount(u);
         // student TODO : add your **Update account information** function
         // here
         break;
@@ -33,6 +34,7 @@ void mainMenu(struct User u)
         checkAllAccounts(u);
         break;
     case 5:
+        makeTransaction(u);
         // student TODO : add your **Make transaction** function
         // here
         break;
@@ -52,7 +54,7 @@ void mainMenu(struct User u)
     }
 };
 
-void initMenu(struct User *u)
+int initMenu(struct User *u)
 {
     int r = 0;
     int option;
@@ -72,15 +74,20 @@ void initMenu(struct User *u)
             if (strcmp(u->password, getPassword(*u)) == 0)
             {
                 printf("\n\nPassword Match!");
+                r = 1; // if no r = 1 , while loop continues , omg, TODO: fixed
+                return 1; // return success
             }
             else
             {
                 printf("\nWrong password!! or User Name\n");
-                exit(1);
+                unsuccess(*u);
+                // exit(1);
             }
-            r = 1;
+            r = 1; 
             break;
         case 2:
+            registerMenu(u);
+            
             // student TODO : add your **Registration** function
             // here
             r = 1;
@@ -92,13 +99,14 @@ void initMenu(struct User *u)
             printf("Insert a valid operation!\n");
         }
     }
+    return 0; // return failure
 };
 
 int main()
 {
     struct User u;
     
-    initMenu(&u);
-    mainMenu(u);
+    int result = initMenu(&u);
+    if (result == 1) mainMenu(u);
     return 0;
 }

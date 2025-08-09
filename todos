@@ -1,0 +1,29 @@
+on acc 21
+Account number:21
+Deposit Date:21/21/21 
+country:kz 
+Phone number:8 
+Amount deposited: $21.00 
+Type Of Account:2
+Read record: ID=0, UserID=1827057376, Name=21, AccountNbr=22, DepositDate=21/21/21, Country=kz, Phone=8, Amount=22.00, AccountType=2
+_____________________
+Account number:22
+Deposit Date:21/21/21 
+country:kz 
+Phone number:8 
+Amount deposited: $22.00 
+Type Of Account:2
+Read record: ID=0, UserID=1827057376, Name=21, AccountNbr=22, DepositDate=21/21/21, Country=kz, Phone=8, Amount=22.00, AccountType=2
+so: from acc 21, created 22, and now it shows acc nbr 22, from list
+result: resolved https://www.youtube.com/watch?v=xVtikDcGG2E
+_____________________
+
+from vid:
+add typing: You cannot deposit or withdraw cash in fixed accounts!
+type savings: can withdraw
+
+records: are type of accs for one accNbr
+    if changing, accNbr info(phone, country) , pick, and >
+        just type: new info
+
+

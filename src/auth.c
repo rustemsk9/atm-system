@@ -2,7 +2,28 @@
 #include "header.h"
 
 char *USERS = "./data/users.txt";
+// users
+// 0 Alice 1234password
+// 1 Michel password1234
 
+// records
+// 0 0 Alice 0 10/02/2020 german 986134231 11090830.00 current
+// 1 1 Michel 2 10/10/2021 portugal 914134431 1920.42 savings
+// 2 0 Alice 1 10/10/2000 finland 986134231 1234.21 savings
+void registerMenu(struct User *u)
+{
+    FILE *fp;
+    if ((fp = fopen(USERS, "a")) == NULL)
+    {
+        printf("Error! opening file");
+        exit(1);
+    }
+
+    // checkAllAccounts(*fp, a);
+    // fprintf(fp, "%s %s\n", a, pass);
+    fclose(fp);
+    printf("\nUser registered successfully!\n");
+}
 void loginMenu(char a[50], char pass[50])
 {
     struct termios oflags, nflags;

@@ -30,11 +30,16 @@ struct User
 };
 
 // authentication functions
+int initMenu(struct User *u);
 void loginMenu(char a[50], char pass[50]);
-void registerMenu(char a[50], char pass[50]);
+// void registerMenu(char a[50], char pass[50]); // why is this not a struct User?
+void registerMenu(struct User *u);
 const char *getPassword(struct User u);
 
 // system function
 void createNewAcc(struct User u);
 void mainMenu(struct User u);
 void checkAllAccounts(struct User u);
+void unsuccess(struct User u);
+void updateAccount(struct User u);
+void makeTransaction(struct User u);
