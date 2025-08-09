@@ -140,7 +140,12 @@ void updateAccount(struct User u)
                 return;
             }
         }
-
+        // Pad Records to Fixed Length
+        // If you want to overwrite the file in place,
+        // fprintf(pf, "%-10d %-10d %-20s %-10d %-2d/%-2d/%-4d %-20s %-10d %-10.2lf %-10s\n",
+        // r.id, r.userId, userName, r.accountNbr,
+        // r.deposit.month, r.deposit.day, r.deposit.year,
+        // r.country, r.phone, r.amount, r.accountType);
         // Write the (updated or original) record to the temp file
         fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
                 r.id, r.userId, userName, r.accountNbr,
