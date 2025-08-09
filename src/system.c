@@ -91,9 +91,9 @@ void updateAccount(struct User u)
 {
     struct Record r;
 
-    FILE *pf = fopen(RECORDS, "a+");  // Use r+ for read/write
-
-    if (pf == NULL) {
+    FILE *pf = fopen(RECORDS, "r+");  // Use r+ for read/write
+    FILE *temp = fopen("./data/temp.txt", "w"); // Temporary file for updates
+    if (pf == NULL || temp == NULL) {
         printf("Error: Unable to open file %s\n", RECORDS);
         unsuccess(u);
         return;
@@ -112,63 +112,69 @@ void updateAccount(struct User u)
     char country[100];
     int found = 0;
     long position;
-    char userName[50];
+    char userName[100];
+    int opt2 = 0;
     // Search for the record
-    while (!feof(pf)) {
-        position = ftell(pf);  // Track the current position
-        int result = fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %.2lf %s",
-                            &r.id, &r.userId, "21", &r.accountNbr,
-                            &r.deposit.month, &r.deposit.day, &r.deposit.year,
-                            r.country, &r.phone, &r.amount, r.accountType);
-            // if (result != 11) {
-            //     printf("Error: Malformed record\n");
-            //     continue;  // Skip to the next record
-            // }
-        printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%.2lf, AccountType=%s\n",
-                r.id,
-                r.userId,
-                userName,
-                r.accountNbr,
-                r.deposit.month,
-                r.deposit.day,
-                r.deposit.year,
-                r.country,
-                r.phone,
-                r.amount,
-                r.accountType);
-        if (result == EOF) break;
-        if (result != 11) continue;  // Skip malformed records
-
-        // Check if this is the record to edit
-        if (strcmp(userName, u.name) == 0 && r.accountNbr == (int)accToUpdate) {
+    while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                  &r.id, &r.userId, userName, &r.accountNbr,
+                  &r.deposit.month, &r.deposit.day, &r.deposit.year,
+                  r.country, &r.phone, &r.amount, r.accountType) == 11) {
+        if (strcmp(userName, u.name) == 0 && r.accountNbr == accToUpdate) {
             found = 1;
-            break;
-        }
-    }
-    if (found) {
-        printf("\n Which information do you want to update:\n1: Phone number:(%d)\n2: Country:(%s): ", r.phone, r.country);
-        scanf("%d", &opt1);
-        if (opt1 == 1) {
-            printf("\nEnter the new phone number:");
-            scanf("%d", &phone);
-            r.phone = phone;
+            printf("\nRecord found! Current Phone: %d, Country: %s\n", r.phone, r.country);
 
-        } else if (opt1 == 2) {
-            printf("\nEnter the new country:");
-            scanf("%s", country);
-            strcpy(r.country, country);
-        } else {
-            printf("Invalid option selected.\n");
-            fclose(pf);
-            return;
+            int opt1;
+            printf("\nWhich information do you want to update:\n1: Phone number\n2: Country\nChoice: ");
+            scanf("%d", &opt1);
+
+            if (opt1 == 1) {
+                printf("\nEnter the new phone number: ");
+                scanf("%d", &r.phone);
+            } else if (opt1 == 2) {
+                printf("\nEnter the new country: ");
+                scanf("%s", r.country);
+            } else {
+                printf("Invalid option selected.\n");
+                fclose(pf);
+                fclose(temp);
+                return;
+            }
         }
-        
-        // Proceed with the transaction
-    } else {
-        printf("Record not found for user %s with account number %d.\n", u.name, r.accountNbr);
-        fclose(pf);
-        return;
+
+        // Write the (updated or original) record to the temp file
+        fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+                r.id, r.userId, userName, r.accountNbr,
+                r.deposit.month, r.deposit.day, r.deposit.year,
+                r.country, r.phone, r.amount, r.accountType);
     }
+        // printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%lf, AccountType=%s\n",
+        //         r.id,
+        //         r.userId,
+        //         userName,
+        //         r.accountNbr,
+        //         r.deposit.month,
+        //         r.deposit.day,
+        //         r.deposit.year,
+        //         r.country,
+        //         r.phone,
+        //         r.amount,
+        //         r.accountType);
+    
+
+    fclose(pf);
+    fclose(temp);
+    if (found) {
+        remove(RECORDS);               // Delete the original file
+        rename("./data/temp.txt", RECORDS);  // Replace with the temp file
+        printf("Record updated successfully!\n");
+        success(u);
+    } else {
+        remove("./data/temp.txt");     // Clean up temp file
+        printf("Record not found.\n");
+        unsuccess(u);
+    }
+    fclose(pf);
+    success(u);
 }
 void saveAccountToFile(FILE *ptr, struct User u, struct Record r)
 {

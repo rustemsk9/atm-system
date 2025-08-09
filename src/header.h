@@ -15,7 +15,7 @@ struct Record
     char name[100];
     char country[100];
     int phone;
-    char accountType[10];
+    char accountType[20];
     int accountNbr;
     double amount;
     struct Date deposit;
@@ -41,5 +41,6 @@ void createNewAcc(struct User u);
 void mainMenu(struct User u);
 void checkAllAccounts(struct User u);
 void unsuccess(struct User u);
+void success(struct User u);
 void updateAccount(struct User u);
 void makeTransaction(struct User u);
