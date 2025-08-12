@@ -1,5 +1,8 @@
 #include "header.h"
-
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <string.h>
+// #include <stdbool.h>
 const char *RECORDS = "./data/records.txt";
 
 int getAccountFromFile(FILE *ptr, char name[50], struct Record *r, int opt)
@@ -18,18 +21,19 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r, int opt)
             &r->amount,
             r->accountType);
             
-            printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%.2lf, AccountType=%s\n",
-                r->id,
-                r->userId,
-                name,
-                r->accountNbr,
-                r->deposit.month,
-                r->deposit.day,
-                r->deposit.year,
-                r->country,
-                r->phone,
-                r->amount,
-                r->accountType);
+            // printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%.2lf, AccountType=%s\n",
+            //     r->id,
+            //     r->userId,
+            //     name,
+            //     r->accountNbr,
+            //     r->deposit.month,
+            //     r->deposit.day,
+            //     r->deposit.year,
+            //     r->country,
+            //     r->phone,
+            //     r->amount,
+            //     r->accountType);
+
                 // Proper ID validation
                 if (result == EOF) {
                     return 0; // End of file reached
@@ -64,29 +68,304 @@ int getAccountFromFile(FILE *ptr, char name[50], struct Record *r, int opt)
     return 1; // Success
 }
 
-// void editRecord(FILE *ptr, char name[50], int accNbr) {
-
-//     int result = fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
-//                        &r->id,
-//                        &r->userId,
-//                        name,
-//                        &r->accountNbr,
-//                     &r->deposit.month,
-//                     &r->deposit.day,
-//                     &r->deposit.year,
-//                     r->country,
-//                     &r->phone,
-//                     &r->amount,
-//                     r->accountType);
-    
-// }
 void makeTransaction(struct User u)
 {
     system("clear");
     printf("\t\t\t===== Make Transaction =====\n");
+    int option;
+    printf("\nEnter your account number: ");
+    scanf("%d", &option);
+    if (option <= 0) {
+        printf("Invalid account number!\n");
+        unsuccess(u, 4);
+        return;
+    }
+
+    printf("\nChoose the type of transaction:\n");
+    printf("\n\t[1] - Widthdraw\n");
+    printf("\n\t[2] - Deposit\n");
+    printf("\n\t[3] - Exit\n");
+    int option2;
+    scanf("%d", &option2);
+
+    switch (option2)
+    {    
+    case 1:
+        // nWithdraw logic here
+        // printf("\nWithdraw functionality is not implemented yet.\n");
+        transactionFunctionality(u, option, option2);
+        // success(u);
+        break;
+    case 2:
+        // Deposit logic here
+        // printf("\nDeposit functionality is not implemented yet.\n");
+        transactionFunctionality(u, option, option2);
+        success(u);
+        break;
+    case 3:
+        // Exit logic here
+        printf("\nExiting transaction menu.\n");
+        // success(u);
+        break;
+    default:
+        printf("\nInvalid option selected!\n");
+        unsuccess(u, 4);
+        break;
+    }
 
 }
 
+void removeAccount(struct User u)
+{
+    struct Record r;
+    char userName[100];
+    int accNbr;
+
+    FILE *pf = fopen(RECORDS, "r+"); // Open for reading and writing
+    FILE *temp = fopen("./data/temp.txt", "w"); // Temporary file for updates
+    if (pf == NULL || temp == NULL) {
+        printf("Error: Unable to open file %s\n", RECORDS);
+        unsuccess(u, 0);
+        return;
+    }
+
+    system("clear");
+    printf("\t\t\t===== Remove Account =====\n");
+
+    printf("\nEnter your account number you want to remove: ");
+    scanf("%d", &accNbr);
+
+    int found = 0;
+    // Search for the record to remove
+    while (getAccountFromFile(pf, userName, &r, 0)) {
+        if (strcmp(userName, u.name) == 0 && r.accountNbr == accNbr) {
+            found = 1; // Record found
+            continue; // Skip writing this record to the temp file
+        }
+        // Write the record to the temp file if it's not the one to be removed
+        fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+                r.id, r.userId, userName, r.accountNbr,
+                r.deposit.month, r.deposit.day, r.deposit.year,
+                r.country, r.phone, r.amount, r.accountType);
+    }
+
+    fclose(pf);
+    fclose(temp);
+
+    if (found) {
+        remove(RECORDS);               // Delete the original file
+        rename("./data/temp.txt", RECORDS);  // Replace with the temp file
+        printf("Account removed successfully!\n");
+        success(u);
+    } else {
+        remove("./data/temp.txt");     // Clean up temp file
+        printf("Record not found.\n");
+        unsuccess(u, 6);
+    }
+}
+
+void checkDetails(struct User u)
+{
+    struct Record r;
+    char userName[100];
+    int accNbr;
+
+    FILE *pf = fopen(RECORDS, "r");
+    int found = 0;
+    if (pf == NULL) {
+        printf("Error: Unable to open file %s\n", RECORDS);
+        unsuccess(u,0);
+        return;
+    }
+
+    system("clear");
+    printf("\t\t\t===== Check Details =====\n");
+
+    printf("\nEnter the account number you want to check: ");
+    scanf("%d", &accNbr);
+
+    while (getAccountFromFile(pf, userName, &r, 0)) {
+        if (strcmp(userName, u.name) == 0 && r.accountNbr == accNbr) {
+            found = 1; // Record found
+            printf("\nAccount number: %d\nDeposit Date: %d/%d/%d\nCountry: %s\nPhone number: %d\nAmount deposited: $%.2f\nType Of Account: %s\n",
+                   r.accountNbr,
+                   r.deposit.month,
+                   r.deposit.day,
+                   r.deposit.year,
+                   r.country,
+                   r.phone,
+                   r.amount,
+                   r.accountType);
+            fclose(pf);
+            success(u);
+            return;
+        }
+    }
+    
+    if (found) {
+        fclose(pf);
+        success(u);
+        return;
+    } else {
+        fclose(pf);
+        printf("Record not found.\n");
+        unsuccess(u,5);
+
+    }
+}
+
+void transactionFunctionality(struct User u, int opt, int transactionType) 
+{
+    struct Record r;
+
+    FILE *pf = fopen(RECORDS, "r+");  // Use r+ for read/write
+    FILE *temp = fopen("./data/temp.txt", "w"); // Temporary file for updates
+    if (pf == NULL || temp == NULL) {
+        printf("Error: Unable to open file %s\n", RECORDS);
+        unsuccess(u, 0);
+        return;
+    }
+
+    // need to retrieve info and edit it
+    int phone;
+    char country[100];
+    int found = 0;
+    long position;
+    char userName[100];
+
+    if (transactionType == 1) {
+        // Deposit logic here
+        printf("\nWithdraw functionality is not implemented yet.\n");
+        while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                        &r.id, &r.userId, userName, &r.accountNbr,
+                        &r.deposit.month, &r.deposit.day, &r.deposit.year,
+                        r.country, &r.phone, &r.amount, r.accountType) == 11) {
+                double new_amount;
+                double tmp = r.amount; // Initialize new_amount with current amount
+                if (strcmp(userName, u.name) == 0 && r.accountNbr == opt) {
+                    found = 1;
+                    // printf("\nRecord found! Current Phone: %d, Country: %s\n", r.phone, r.country);
+                    int opt1;
+
+                    invalid2:
+                    printf("\nEnter the ammount you want to withdraw: $");
+                    scanf("%lf", &new_amount);
+                    if (new_amount > r.amount) {
+                        int opt_re1 = 0;
+                        printf("Insufficient funds! Current amount: $%.2lf\n", r.amount);
+                        printf("\n[1] Enter the new amount to withdraw");
+                        printf("\n[2] Back to main transaction menu");
+                        printf("\n[3] Exit");
+                        scanf("%d", &opt_re1);
+                        switch (opt_re1) {
+                        case 1:
+                            goto invalid2;
+                            // printf("\nEnter the new amount to withdraw: ");
+                            // scanf("%d", &new_amount);
+                            break;
+                        case 2:
+                            printf("\nBack to main transaction menu.\n");
+                            makeTransaction(u);
+                            fclose(pf);
+                            fclose(temp);
+                            // success(u);
+                            return;
+                        case 3:
+                            printf("\nExiting transaction menu.\n");
+                            fclose(pf);
+                            fclose(temp);
+                            // success(u);
+                            return;
+                        }                                
+                    } else {
+                        tmp = r.amount - new_amount;
+                    }
+                }
+                // Pad Records to Fixed Length
+                // If you want to overwrite the file in place,
+                // fprintf(pf, "%-10d %-10d %-20s %-10d %-2d/%-2d/%-4d %-20s %-10d %-10.2lf %-10s\n",
+                // r.id, r.userId, userName, r.accountNbr,
+                // r.deposit.month, r.deposit.day, r.deposit.year,
+                // r.country, r.phone, r.amount, r.accountType);
+                // Write the (updated or original) record to the temp file
+
+                fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+                        r.id, r.userId, userName, r.accountNbr,
+                        r.deposit.month, r.deposit.day, r.deposit.year,
+                        r.country, r.phone, tmp, r.accountType);
+            }
+
+        fclose(pf);
+        fclose(temp);   
+        if (found) {
+            remove(RECORDS);               // Delete the original file
+            rename("./data/temp.txt", RECORDS);  // Replace with the temp file
+            printf("Transaction completed successfully!\n");
+            success(u);
+            return;
+        } else {
+            remove("./data/temp.txt");     // Clean up temp file
+            printf("Record not found.\n");
+            unsuccess(u, 4);
+            return;
+        }
+    } else if (transactionType == 2) {
+        // Deposit logic here
+        printf("\nDeposit functionality is not implemented yet.\n");
+        while (fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+                        &r.id, &r.userId, userName, &r.accountNbr,
+                        &r.deposit.month, &r.deposit.day, &r.deposit.year,
+                        r.country, &r.phone, &r.amount, r.accountType) == 11) {
+                            
+                double new_amount;
+                double tmp = r.amount; // Initialize new_amount with current amount
+                if (strcmp(userName, u.name) == 0 && r.accountNbr == opt) {
+                    found = 1;
+                    // printf("\nRecord found! Current Phone: %d, Country: %s\n", r.phone, r.country);
+                    int opt1;
+
+                    invalid:
+                    printf("\nEnter the ammount you want to deposit: $");
+                    scanf("%2lf", &new_amount);
+                    tmp += new_amount; // Add the deposit amount to the current amount
+                }
+                // Pad Records to Fixed Length
+                // If you want to overwrite the file in place,
+                // fprintf(pf, "%-10d %-10d %-20s %-10d %-2d/%-2d/%-4d %-20s %-10d %-10.2lf %-10s\n",
+                // r.id, r.userId, userName, r.accountNbr,
+                // r.deposit.month, r.deposit.day, r.deposit.year,
+                // r.country, r.phone, r.amount, r.accountType);
+                // Write the (updated or original) record to the temp file
+
+                fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+                        r.id, r.userId, userName, r.accountNbr,
+                        r.deposit.month, r.deposit.day, r.deposit.year,
+                        r.country, r.phone, tmp, r.accountType);
+            }
+
+        fclose(pf);
+        fclose(temp);   
+        if (found) {
+            remove(RECORDS);               // Delete the original file
+            rename("./data/temp.txt", RECORDS);  // Replace with the temp file
+            // printf("Transaction completed successfully!\n");
+            success(u);
+            // return;
+            // stayOrReturn(1, makeTransaction, u);
+        } else {
+            remove("./data/temp.txt");     // Clean up temp file
+            printf("Record not found.\n");
+            unsuccess(u, 4);
+            // return;
+        }
+        // success(u);
+    } else {
+        // Exit logic here
+        printf("\nExiting transaction menu.\n");
+        success(u);
+        // return;
+    }
+}
 void updateAccount(struct User u)
 {
     struct Record r;
@@ -95,7 +374,7 @@ void updateAccount(struct User u)
     FILE *temp = fopen("./data/temp.txt", "w"); // Temporary file for updates
     if (pf == NULL || temp == NULL) {
         printf("Error: Unable to open file %s\n", RECORDS);
-        unsuccess(u);
+        unsuccess(u, 0);
         return;
     }
     system("clear");
@@ -171,15 +450,15 @@ void updateAccount(struct User u)
     if (found) {
         remove(RECORDS);               // Delete the original file
         rename("./data/temp.txt", RECORDS);  // Replace with the temp file
-        printf("Record updated successfully!\n");
+        // printf("Record updated successfully!\n");
         success(u);
     } else {
         remove("./data/temp.txt");     // Clean up temp file
         printf("Record not found.\n");
-        unsuccess(u);
+        unsuccess(u, 2);
     }
-    fclose(pf);
-    success(u);
+    // fclose(pf);
+    // success(u);
 }
 void saveAccountToFile(FILE *ptr, struct User u, struct Record r)
 {
@@ -259,7 +538,7 @@ invalid:
     }
 }
 
-void unsuccess(struct User u)
+void unsuccess(struct User u, int num)
 {
     int option;
     printf("\n✖ Unsuccessful!\n\n");
@@ -269,7 +548,29 @@ invalid:
     system("clear");
     if (option == 1)
     {
-        initMenu(&u);
+        switch (num) {
+            case 1:
+                createNewAcc(u);
+                break;
+            case 2:
+                updateAccount(u);
+                break;
+            case 3:
+                checkAllAccounts(u);
+                break;
+            case 4:
+                makeTransaction(u);
+                break;
+            case 5:
+                checkDetails(u);
+                break;
+            case 6:
+                removeAccount(u);
+                break;
+            default:
+                initMenu(&u);
+        }
+        
     } 
     else if (option == 0)
     {
@@ -291,7 +592,7 @@ void createNewAcc(struct User u)
     
     if (pf == NULL) {
         printf("Error: Unable to open file %s\n", RECORDS);
-        unsuccess(u);
+        unsuccess(u, 1);
         return;
     }
 
@@ -332,12 +633,12 @@ void checkAllAccounts(struct User u) // for records.txt
 {
     char userName[100];
     struct Record r;
-
+    int found = 0;
     FILE *pf = fopen(RECORDS, "r");
     
     if (pf == NULL) {
         printf("Error: Unable to open file %s\n", RECORDS);
-        unsuccess(u);
+        unsuccess(u, 0);
         return;
     }
 
@@ -347,6 +648,7 @@ void checkAllAccounts(struct User u) // for records.txt
     {
         if (strcmp(userName, u.name) == 0)
         {
+            found = 1; // Record found
             printf("_____________________\n");
             printf("\nAccount number:%d\nDeposit Date:%d/%d/%d \ncountry:%s \nPhone number:%d \nAmount deposited: $%.2f \nType Of Account:%s\n",
                    r.accountNbr,
@@ -360,5 +662,9 @@ void checkAllAccounts(struct User u) // for records.txt
         }
     }
     fclose(pf);
-    success(u);
+    if (found) {
+        success(u);
+    } else {
+        unsuccess(u, 0);
+    }
 }

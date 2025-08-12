@@ -13,7 +13,7 @@ void mainMenu(struct User u)
     printf("\n\t\t[5]- Make Transaction\n");
     printf("\n\t\t[6]- Remove existing account\n");
     printf("\n\t\t[7]- Transfer ownership\n");
-    printf("\n\t\t[8]- Exit\n");
+    printf("\n\t\t[0]- Exit\n");
     scanf("%d", &option);
 
     switch (option)
@@ -27,6 +27,7 @@ void mainMenu(struct User u)
         // here
         break;
     case 3:
+        checkDetails(u);
         // student TODO : add your **Check the details of existing accounts** function
         // here
         break;
@@ -39,6 +40,7 @@ void mainMenu(struct User u)
         // here
         break;
     case 6:
+        removeAccount(u);
         // student TODO : add your **Remove existing account** function
         // here
         break;
@@ -46,7 +48,7 @@ void mainMenu(struct User u)
         // student TODO : add your **Transfer owner** function
         // here
         break;
-    case 8:
+    case 0:
         exit(1);
         break;
     default:
@@ -80,7 +82,7 @@ int initMenu(struct User *u)
             else
             {
                 printf("\nWrong password!! or User Name\n");
-                unsuccess(*u);
+                unsuccess(*u, 0);
                 // exit(1);
             }
             r = 1; 
