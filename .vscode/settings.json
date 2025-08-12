@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "_seek_set.h": "c"
+        "_seek_set.h": "c",
+        "string.h": "c"
     }
 }

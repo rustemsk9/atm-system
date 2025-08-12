@@ -22,12 +22,12 @@ void mainMenu(struct User u)
         createNewAcc(u);
         break;
     case 2:
-        updateAccount(u);
+        updateAccount(u, 0, "");
         // student TODO : add your **Update account information** function
         // here
         break;
     case 3:
-        checkDetails(u);
+        checkDetails(u, 0);
         // **Check the details of existing accounts** function
         // here
         break;
@@ -45,7 +45,8 @@ void mainMenu(struct User u)
         // here
         break;
     case 7:
-        // student TODO : add your **Transfer owner** function
+        transferOwnership(u);
+        // **Transfer ownership** function
         // here
         break;
     case 0:
@@ -76,7 +77,7 @@ int initMenu(struct User *u)
             if (strcmp(u->password, getPassword(*u)) == 0)
             {
                 printf("\n\nPassword Match!");
-                r = 1; // if no r = 1 , while loop continues , omg, TODO: fixed
+                r = 1; // if no r = 1 , while loop continues , omg
                 return 1; // return success
             }
             else

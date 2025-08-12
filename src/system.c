@@ -159,7 +159,7 @@ void removeAccount(struct User u)
     }
 }
 
-void checkDetails(struct User u)
+void checkDetails(struct User u, int accToCheck)
 {
     struct Record r;
     char userName[100];
@@ -176,8 +176,13 @@ void checkDetails(struct User u)
     system("clear");
     printf("\t\t\t===== Check Details =====\n");
 
-    printf("\nEnter the account number you want to check: ");
-    scanf("%d", &accNbr);
+    if (accToCheck != 0) {
+        accNbr = accToCheck;
+    } else {
+        printf("\nEnter the account number you want to check: ");
+        scanf("%d", &accNbr);
+
+    }
 
     while (getAccountFromFile(pf, userName, &r, 0)) {
         if (strcmp(userName, u.name) == 0 && r.accountNbr == accNbr) {
@@ -195,22 +200,22 @@ void checkDetails(struct User u)
             // success(u);
             // return;
             
-                if (strcmp(r.accountType, saving) == 0) {
+                if (strcmp(r.accountType, "saving") == 0) {
                     printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.07, r.deposit.day);
                 // printf("\nThis is a saving account.\n");
-                } else if (strcmp(r.accountType, fixed01) == 0) {
+                } else if (strcmp(r.accountType, "fixed01") == 0) {
                     printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.04, r.deposit.day);
                     break;
                     // printf("\nThis is a fixed01 account.\n");
-                } else if (strcmp(r.accountType, fixed02) == 0) {
+                } else if (strcmp(r.accountType, "fixed02") == 0) {
                     printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.05, r.deposit.day);
                     break;
                     // printf("\nThis is a fixed02 account.\n");
-                } else if (strcmp(r.accountType, fixed03) == 0) {
+                } else if (strcmp(r.accountType, "fixed03") == 0) {
                     printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.08, r.deposit.day);
                     break;
                     // printf("\nThis is a fixed03 account.\n");
-                } else if (strcmp(r.accountType, current) == 0) {
+                } else if (strcmp(r.accountType, "current") == 0) {
                     printf("\n\tYou will not get any interest on this account.\n");
                     break;
                     
@@ -226,7 +231,11 @@ void checkDetails(struct User u)
     
     if (found) {
         fclose(pf);
-        success(u);
+        if (accToCheck != 0) {
+            return;
+        } else {
+            success(u);
+        }
         return;
     } else {
         fclose(pf);
@@ -238,19 +247,19 @@ void checkDetails(struct User u)
 
 int checkAccountType(char accountType[20])
 {
-    if (strcmp(accountType, saving) == 0) {
+    if (strcmp(accountType, "saving") == 0) {
         return 0;
         // printf("\nThis is a saving account.\n");
-    } else if (strcmp(accountType, fixed01) == 0) {
+    } else if (strcmp(accountType, "fixed01") == 0) {
         return 1;
         // printf("\nThis is a fixed01 account.\n");
-    } else if (strcmp(accountType, fixed02) == 0) {
+    } else if (strcmp(accountType, "fixed02") == 0) {
         return 2;
         // printf("\nThis is a fixed02 account.\n");
-    } else if (strcmp(accountType, fixed03) == 0) {
+    } else if (strcmp(accountType, "fixed03") == 0) {
         return 3;
         // printf("\nThis is a fixed03 account.\n");
-    } else if (strcmp(accountType, current) == 0) {
+    } else if (strcmp(accountType, "current") == 0) {
         return 4;
         // printf("\nThis is a current account.\n");
     } else {
@@ -287,17 +296,33 @@ void transactionFunctionality(struct User u, int opt, int transactionType)
                 double new_amount;
                 double tmp = r.amount; // Initialize new_amount with current amount
                 if (strcmp(userName, u.name) == 0 && r.accountNbr == opt) {
-                    switch (checkAccountType(r.accountType)){
-                        case 1:
-                        printf("\nYou cannot withdraw from a fixed01 account.\n");
-                        case 2:
-                        printf("\nYou cannot withdraw from a fixed02 account.\n");
-                        case 3:
-                        printf("\nYou cannot withdraw from a fixed03 account.\n");
-                        fclose(pf);
-                        fclose(temp);
-                        return;
-                    }
+                    if (strcmp(r.accountType, "fixed01") == 0) {
+                    printf("\n\tYou cannot withdraw from a fixed01 account.\n");
+                    break;
+                    // printf("\nThis is a fixed01 account.\n");
+                    } else if (strcmp(r.accountType, "fixed02") == 0) {
+                        printf("\n\tYou cannot withdraw from a fixed02 account.\n");
+                        break;
+                        // printf("\nThis is a fixed02 account.\n");
+                    } else if (strcmp(r.accountType, "fixed03") == 0) {
+                        printf("\n\tYou cannot withdraw from a fixed03 account.\n");
+                        break;
+                        // printf("\nThis is a fixed03 account.\n");
+                    } 
+                    fclose(pf);
+                    fclose(temp);
+                    return;
+                    // switch (checkAccountType(r.accountType)){
+                    //     case 1:
+                    //     printf("\nYou cannot withdraw from a fixed01 account.\n");
+                    //     case 2:
+                    //     printf("\nYou cannot withdraw from a fixed02 account.\n");
+                    //     case 3:
+                    //     printf("\nYou cannot withdraw from a fixed03 account.\n");
+                    //     fclose(pf);
+                    //     fclose(temp);
+                    //     return;
+                    // }
                     found = 1;
                     // printf("\nRecord found! Current Phone: %d, Country: %s\n", r.phone, r.country);
                     int opt1;
@@ -421,7 +446,7 @@ void transactionFunctionality(struct User u, int opt, int transactionType)
         // return;
     }
 }
-void updateAccount(struct User u)
+void updateAccount(struct User u, int accToUpdate, char newUserName[100])
 {
     struct Record r;
 
@@ -432,13 +457,21 @@ void updateAccount(struct User u)
         unsuccess(u, 0);
         return;
     }
-    system("clear");
-    printf("\t\t\t===== Update record =====\n");
 
-    int accToUpdate;
-    printf("\nWhat is the account number you want to update:");
-    scanf("%d", &accToUpdate); // is it Itoa?
-    printf("You want to update account number: %d\n", accToUpdate);
+    int transferOwner = 0;
+    if (accToUpdate == 0 && (strcmp(newUserName, "") == 0)) {
+        
+        system("clear");
+        printf("\t\t\t===== Update record =====\n");
+        
+        int accToUpdate;
+        printf("\nWhat is the account number you want to update:");
+        scanf("%d", &accToUpdate); // is it Itoa?
+        printf("You want to update account number: %d\n", accToUpdate);
+    } else {
+        transferOwner = 1;
+
+    }
 
     // need to retrieve info and edit it
     int opt1;
@@ -455,23 +488,26 @@ void updateAccount(struct User u)
                   r.country, &r.phone, &r.amount, r.accountType) == 11) {
         if (strcmp(userName, u.name) == 0 && r.accountNbr == accToUpdate) {
             found = 1;
-            printf("\nRecord found! Current Phone: %d, Country: %s\n", r.phone, r.country);
+            printf("\nInformation on Account:\n\t Phone: %d,\n\t Country: %s\n", r.phone, r.country);
 
-            int opt1;
-            printf("\nWhich information do you want to update:\n1: Phone number\n2: Country\nChoice: ");
-            scanf("%d", &opt1);
+            if (transferOwner == 0) {
 
-            if (opt1 == 1) {
-                printf("\nEnter the new phone number: ");
-                scanf("%d", &r.phone);
-            } else if (opt1 == 2) {
-                printf("\nEnter the new country: ");
-                scanf("%s", r.country);
-            } else {
-                printf("Invalid option selected.\n");
-                fclose(pf);
-                fclose(temp);
-                return;
+                int opt1;
+                printf("\nWhich information do you want to update:\n1: Phone number\n2: Country\nChoice: ");
+                scanf("%d", &opt1);
+                
+                if (opt1 == 1) {
+                    printf("\nEnter the new phone number: ");
+                    scanf("%d", &r.phone);
+                } else if (opt1 == 2) {
+                    printf("\nEnter the new country: ");
+                    scanf("%s", r.country);
+                } else {
+                    printf("Invalid option selected.\n");
+                    fclose(pf);
+                    fclose(temp);
+                    return;
+                }
             }
         }
         // Pad Records to Fixed Length
@@ -481,24 +517,24 @@ void updateAccount(struct User u)
         // r.deposit.month, r.deposit.day, r.deposit.year,
         // r.country, r.phone, r.amount, r.accountType);
         // Write the (updated or original) record to the temp file
-        fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+        if (transferOwner == 0) {
+
+            fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
                 r.id, r.userId, userName, r.accountNbr,
                 r.deposit.month, r.deposit.day, r.deposit.year,
                 r.country, r.phone, r.amount, r.accountType);
+        } else {
+            printf("\new username account number: %s\n", newUserName);
+            if (strcmp(userName, u.name) == 0 && r.accountNbr == accToUpdate) {
+                // Update the user name if it is the account to be updated
+                strcpy(userName, newUserName);
+            }
+            fprintf(temp, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+                    r.id, r.userId, userName, r.accountNbr,
+                    r.deposit.month, r.deposit.day, r.deposit.year,
+                    r.country, r.phone, r.amount, r.accountType);
+        }
     }
-        // printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%lf, AccountType=%s\n",
-        //         r.id,
-        //         r.userId,
-        //         userName,
-        //         r.accountNbr,
-        //         r.deposit.month,
-        //         r.deposit.day,
-        //         r.deposit.year,
-        //         r.country,
-        //         r.phone,
-        //         r.amount,
-        //         r.accountType);
-    
 
     fclose(pf);
     fclose(temp);
@@ -608,7 +644,7 @@ invalid:
                 createNewAcc(u);
                 break;
             case 2:
-                updateAccount(u);
+                updateAccount(u, 0, ""); // Pass 0 and empty string for account number and new user name
                 break;
             case 3:
                 checkAllAccounts(u);
@@ -617,7 +653,7 @@ invalid:
                 makeTransaction(u);
                 break;
             case 5:
-                checkDetails(u);
+                checkDetails(u, 0);
                 break;
             case 6:
                 removeAccount(u);
@@ -734,4 +770,18 @@ void checkAllAccounts(struct User u) // for records.txt
     } else {
         unsuccess(u, 0);
     }
+}
+
+void transferOwnership(struct User u) {
+    system("clear");
+    printf("\t\t\t===== Transfer Ownership =====\n");
+    // printf("\nThis feature is not implemented yet.\n");
+    printf("\nEnter the account number you want to transfer ownership of: ");
+    int accNbr;
+    scanf("%d", &accNbr);
+    checkDetails(u, accNbr);
+    printf("\nWhich user do you want to transfer ownership to? (user name): ");
+    char New_name[100];
+    scanf("%s", New_name);
+    updateAccount(u, accNbr, New_name);
 }

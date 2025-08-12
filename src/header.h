@@ -28,11 +28,12 @@ struct User
     char name[50];
     char password[50];
 };
-const char saving[] = "saving";
-const char fixed01[] = "fixed01";
-const char fixed02[] = "fixed02";
-const char fixed03[] = "fixed03";
-const char current[] = "current";
+// Account types
+// const char saving[] = "saving";
+// const char fixed01[] = "fixed01";
+// const char fixed02[] = "fixed02";
+// const char fixed03[] = "fixed03";
+// const char current[] = "current";
 
 // authentication functions
 int initMenu(struct User *u);
@@ -47,9 +48,10 @@ void mainMenu(struct User u);
 void checkAllAccounts(struct User u);
 void unsuccess(struct User u, int num);
 void success(struct User u);
-void updateAccount(struct User u);
+void updateAccount(struct User u, int accToUpdate, char newUserName[100]);
 void makeTransaction(struct User u);
-void checkDetails(struct User u);
+void checkDetails(struct User u, int accNbr);
 void removeAccount(struct User u);
 void transactionFunctionality(struct User u, int opt, int transactionType);
 void stayOrReturn(int notGood, void f(struct User u), struct User u);
+void transferOwnership(struct User u);
