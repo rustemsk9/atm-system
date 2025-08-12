@@ -7,65 +7,60 @@ const char *RECORDS = "./data/records.txt";
 
 int getAccountFromFile(FILE *ptr, char name[50], struct Record *r, int opt)
 {
-    if (opt == 0) {
-        int result = fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
-            &r->id,
-            &r->userId,
-            name,
-            &r->accountNbr,
-            &r->deposit.month,
-            &r->deposit.day,
-            &r->deposit.year,
-            r->country,
-            &r->phone,
-            &r->amount,
-            r->accountType);
-            
-            // printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%.2lf, AccountType=%s\n",
-            //     r->id,
-            //     r->userId,
-            //     name,
-            //     r->accountNbr,
-            //     r->deposit.month,
-            //     r->deposit.day,
-            //     r->deposit.year,
-            //     r->country,
-            //     r->phone,
-            //     r->amount,
-            //     r->accountType);
+    int result = fscanf(ptr, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+        &r->id,
+        &r->userId,
+        name, // userName[50]
+        &r->accountNbr,
+        &r->deposit.month,
+        &r->deposit.day,
+        &r->deposit.year,
+        r->country,
+        &r->phone,
+        &r->amount,
+        r->accountType);
+        
+        // printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%.2lf, AccountType=%s\n",
+        //     r->id,
+        //     r->userId,
+        //     name,
+        //     r->accountNbr,
+        //     r->deposit.month,
+        //     r->deposit.day,
+        //     r->deposit.year,
+        //     r->country,
+        //     r->phone,
+        //     r->amount,
+        //     r->accountType);
 
-                // Proper ID validation
-                if (result == EOF) {
-                    return 0; // End of file reached
-                }
-                if (result != 11) { // TODO: after 
-                    printf("Error: Invalid record format in file\n");
-                    return 0; // Incomplete record
-                }
-                
-                // Validate ID ranges
-                if (r->id < 0) {
-                    printf("Error: Invalid record ID (%d) - must be non-negative\n", r->id);
-                    return 0;
-                }
-                
-                if (r->userId < 0) {
-                    printf("Error: Invalid user ID (%d) - must be non-negative\n", r->userId);
-                    return 0;
-                }
-                
-                if (r->accountNbr <= 0) {
-                    printf("Error: Invalid account number (%d) - must be positive\n", r->accountNbr);
-                    return 0;
-                }
-                
-                return 1; // Success
-            } else if (opt == 1) { // needbyAccountNbr
-                    
+            // Proper ID validation
+            if (result == EOF) {
+                return 0; // End of file reached
+            }
+            if (result != 11) { // TODO: after 
+                printf("Error: Invalid record format in file\n");
+                return 0; // Incomplete record
+            }
             
+            // Validate ID ranges
+            if (r->id < 0) {
+                printf("Error: Invalid record ID (%d) - must be non-negative\n", r->id);
+                return 0;
+            }
+            
+            if (r->userId < 0) {
+                printf("Error: Invalid user ID (%d) - must be non-negative\n", r->userId);
+                return 0;
+            }
+            
+            if (r->accountNbr <= 0) {
+                printf("Error: Invalid account number (%d) - must be positive\n", r->accountNbr);
+                return 0;
+            }
+            
+            return 1; // Success
 
-    }
-    return 1; // Success
+    // return 1; // Success
 }
 
 void makeTransaction(struct User u)
@@ -196,9 +191,36 @@ void checkDetails(struct User u)
                    r.phone,
                    r.amount,
                    r.accountType);
-            fclose(pf);
-            success(u);
-            return;
+            // fclose(pf);
+            // success(u);
+            // return;
+            
+                if (strcmp(r.accountType, saving) == 0) {
+                    printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.07, r.deposit.day);
+                // printf("\nThis is a saving account.\n");
+                } else if (strcmp(r.accountType, fixed01) == 0) {
+                    printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.04, r.deposit.day);
+                    break;
+                    // printf("\nThis is a fixed01 account.\n");
+                } else if (strcmp(r.accountType, fixed02) == 0) {
+                    printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.05, r.deposit.day);
+                    break;
+                    // printf("\nThis is a fixed02 account.\n");
+                } else if (strcmp(r.accountType, fixed03) == 0) {
+                    printf("\n\tYou will get $%.2f as interest on day %d of every month\n", r.amount * 0.08, r.deposit.day);
+                    break;
+                    // printf("\nThis is a fixed03 account.\n");
+                } else if (strcmp(r.accountType, current) == 0) {
+                    printf("\n\tYou will not get any interest on this account.\n");
+                    break;
+                    
+                    // printf("\nThis is a current account.\n");
+                } else {
+                    printf("\nInvalid account type!\n");
+                    break; // Invalid account type
+                }
+
+            break; // Exit the loop after finding the record
         }
     }
     
@@ -214,6 +236,28 @@ void checkDetails(struct User u)
     }
 }
 
+int checkAccountType(char accountType[20])
+{
+    if (strcmp(accountType, saving) == 0) {
+        return 0;
+        // printf("\nThis is a saving account.\n");
+    } else if (strcmp(accountType, fixed01) == 0) {
+        return 1;
+        // printf("\nThis is a fixed01 account.\n");
+    } else if (strcmp(accountType, fixed02) == 0) {
+        return 2;
+        // printf("\nThis is a fixed02 account.\n");
+    } else if (strcmp(accountType, fixed03) == 0) {
+        return 3;
+        // printf("\nThis is a fixed03 account.\n");
+    } else if (strcmp(accountType, current) == 0) {
+        return 4;
+        // printf("\nThis is a current account.\n");
+    } else {
+        printf("\nInvalid account type!\n");
+        return -1; // Invalid account type
+    }
+}
 void transactionFunctionality(struct User u, int opt, int transactionType) 
 {
     struct Record r;
@@ -243,6 +287,17 @@ void transactionFunctionality(struct User u, int opt, int transactionType)
                 double new_amount;
                 double tmp = r.amount; // Initialize new_amount with current amount
                 if (strcmp(userName, u.name) == 0 && r.accountNbr == opt) {
+                    switch (checkAccountType(r.accountType)){
+                        case 1:
+                        printf("\nYou cannot withdraw from a fixed01 account.\n");
+                        case 2:
+                        printf("\nYou cannot withdraw from a fixed02 account.\n");
+                        case 3:
+                        printf("\nYou cannot withdraw from a fixed03 account.\n");
+                        fclose(pf);
+                        fclose(temp);
+                        return;
+                    }
                     found = 1;
                     // printf("\nRecord found! Current Phone: %d, Country: %s\n", r.phone, r.country);
                     int opt1;
@@ -460,10 +515,10 @@ void updateAccount(struct User u)
     // fclose(pf);
     // success(u);
 }
-void saveAccountToFile(FILE *ptr, struct User u, struct Record r)
+void saveAccountToFile(FILE *ptr, struct User u, struct Record r, int id)
 {
-    fprintf(ptr, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n\n",
-            r.id,
+    fprintf(ptr, "%d %d %s %d %d/%d/%d %s %d %.2lf %s\n",
+            id, // Use the provided ID or auto-increment logic
 	        u.id,
 	        u.name,
             r.accountNbr,
@@ -588,14 +643,20 @@ void createNewAcc(struct User u)
     struct Record r;
     struct Record cr;
     char userName[50];
-    FILE *pf = fopen(RECORDS, "a+");
+    FILE *pf = fopen(RECORDS, "a+"); // Open for appending and reading
     
     if (pf == NULL) {
         printf("Error: Unable to open file %s\n", RECORDS);
         unsuccess(u, 1);
         return;
     }
-
+    int num = 0;
+    // while(fscanf(pf, "%d %d %s %d %d/%d/%d %s %d %lf %s",
+    //               &r.id, &r.userId, userName, &r.accountNbr,
+    //               &r.deposit.month, &r.deposit.day, &r.deposit.year,
+    //               r.country, &r.phone, &r.amount, r.accountType) == 11) {
+    //     num = r.id;
+    // }
 noAccount:
     system("clear");
     printf("\t\t\t===== New record =====\n");
@@ -606,14 +667,19 @@ enterAgain:
     printf("\nEnter the account number:");
     scanf("%d", &r.accountNbr);
 
+    rewind(pf);
     while (getAccountFromFile(pf, userName, &cr, 0))
     {
+        num++;
+        // printf("OMG: %d\n", num);
         if (strcmp(userName, u.name) == 0 && cr.accountNbr == r.accountNbr)
         {
             printf("✖ This Account already exists for this user\n\n");
+            num = 0;
             goto enterAgain;
         }
     }
+
     printf("\nEnter the country:");
     scanf("%s", r.country);
     printf("\nEnter the phone number:");
@@ -623,7 +689,7 @@ enterAgain:
     printf("\nChoose the type of account:\n\t-> saving\n\t-> current\n\t-> fixed01(for 1 year)\n\t-> fixed02(for 2 years)\n\t-> fixed03(for 3 years)\n\n\tEnter your choice:");
     scanf("%s", r.accountType);
 
-    saveAccountToFile(pf, u, r);
+    saveAccountToFile(pf, u, r, num + 1); // Use num + 1 as the new ID
 
     fclose(pf);
     success(u);
@@ -660,6 +726,7 @@ void checkAllAccounts(struct User u) // for records.txt
                    r.amount,
                    r.accountType);
         }
+        // printf("Read record: ID=%d, UserID=%d, Name=%s, AccountNbr=%d, DepositDate=%d/%d/%d, Country=%s, Phone=%d, Amount=%.2lf, AccountType=%s\n",
     }
     fclose(pf);
     if (found) {

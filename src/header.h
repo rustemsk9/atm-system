@@ -28,6 +28,11 @@ struct User
     char name[50];
     char password[50];
 };
+const char saving[] = "saving";
+const char fixed01[] = "fixed01";
+const char fixed02[] = "fixed02";
+const char fixed03[] = "fixed03";
+const char current[] = "current";
 
 // authentication functions
 int initMenu(struct User *u);

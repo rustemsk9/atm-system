@@ -28,7 +28,7 @@ void mainMenu(struct User u)
         break;
     case 3:
         checkDetails(u);
-        // student TODO : add your **Check the details of existing accounts** function
+        // **Check the details of existing accounts** function
         // here
         break;
     case 4:
@@ -36,12 +36,12 @@ void mainMenu(struct User u)
         break;
     case 5:
         makeTransaction(u);
-        // student TODO : add your **Make transaction** function
+        // **Make transaction** function
         // here
         break;
     case 6:
         removeAccount(u);
-        // student TODO : add your **Remove existing account** function
+        // **Remove existing account** function
         // here
         break;
     case 7:
